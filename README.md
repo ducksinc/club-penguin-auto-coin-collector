@@ -1,0 +1,1 @@
+# club-penguin-auto-mine-clicker
