@@ -1,4 +1,4 @@
-# Club Penguin Auto Mine Clicker
+# Club Penguin Auto Coin Collector
 ### Auto clicker for the mining room in Club Penguin.
 Made for 2560x1440 monitors; specifically, made for the NewCP client while scrolled all the way up. It may work on other monitor resolutions, though it is untested. Will only work on 16x9. (You can always modify the code for your resolution and it will work.) Also, all images were taken for 1440p, and will not work with other resolutions. I will work on this later.
 Make sure the monitor running Club Penguin is set as your primary monitor.
