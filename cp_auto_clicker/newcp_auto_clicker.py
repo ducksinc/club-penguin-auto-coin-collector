@@ -27,7 +27,7 @@ GRAYSCALE = True
 '''Grayscale is true by default.'''
 CONFIDENCE = .9
 '''Confidence default.'''
-SPEED = 260
+SPEED = 250
 '''Penguin movement speed, in pixels/sec (measured at 2560x1440).'''
 
 class AutoClicker():
@@ -39,6 +39,7 @@ class AutoClicker():
     __debug = None
     __puffle = None
     __speed = 0
+    __current_position = None
     __screen_size = None
     __screen_left = 0
     __screen_top = 0
@@ -53,21 +54,25 @@ class AutoClicker():
         self.__debug = False
         self.__screen_size = pg.size()
         self.__puffle = None
-        # Coordinate math for area that the program will search to see if it is open to be clicked on. Also for determining penguin speed in pixels/second.
-        self.__speed = SPEED * ((self.__screen_size[0] / 2560) ** 2)
         # 0 is for width and 1 is for height.
+        self.__width = self.__screen_size[0]
+        self.__height = self.__screen_size[1]
+        # Sets default position to center of screen.
+        self.__current_position = [self.__width/2, self.__height/4]
+        # Coordinate math for area that the program will search to see if it is open to be clicked on. Also for determining penguin speed in pixels/second.
+        self.__speed = SPEED * ((self.__width / 2560) ** 2)
         self.__screen_left = round(self.__screen_size[0]*.2617)
-        self.__screen_top = round(self.__screen_size[1]*.5382)
-        self.__screen_width = round(self.__screen_size[0]*.5371)
-        self.__screen_height = round(self.__screen_size[1]*.3542)
+        self.__screen_top = round(self.__height*.5382)
+        self.__screen_width = round(self.__width*.5371)
+        self.__screen_height = round(self.__height*.3542)
         # Coordinates for calculating a random integer to be clicked on.
-        self.__width_range = round(self.__screen_size[0]*.7988)
-        self.__height_range =  round(self.__screen_size[1]*.8924)
+        self.__width_range = round(self.__width*.7988)
+        self.__height_range =  round(self.__height*.8924)
 
 
     def __print_screen_size(self):
         '''Prints screen size. For debugging.'''
-        print("Screen size: height=" + str(self.__screen_size[1]) + ", width=" + str(self.__screen_size[0]))
+        print("Screen size: height=" + str(self.__height) + ", width=" + str(self.__width))
         print("Borders: left=" + str(self.__screen_left) + ", top=" + str(self.__screen_top) + ", width=" + str(self.__screen_width) + ", height=" + str(self.__screen_height))
         pg.screenshot("screen_borders.png", region=(self.__screen_left, self.__screen_top, self.__screen_width, self.__screen_height))
 
@@ -75,14 +80,13 @@ class AutoClicker():
         '''Gets current position. For debugging.'''
         return pg.position()
 
-    def __click_mine(self):
-        '''Clicks penguin then mines.'''
-        penguin_icon_location = pg.locateCenterOnScreen(FOLDER_PATH + "penguin_icon.png", grayscale=GRAYSCALE, confidence=CONFIDENCE)
-        pg.click(penguin_icon_location)
-        time.sleep(DELAY_TIME)
-        dance_icon_location = pg.locateCenterOnScreen(FOLDER_PATH + "dance_icon.png", grayscale=GRAYSCALE, confidence=CONFIDENCE)
-        pg.click(dance_icon_location)
-        time.sleep(DELAY_TIME)
+    def __mine(self, x, y, movement_time):
+        '''Clicks penguin icon then mine (dance) icon.'''
+        pg.click(x, y)
+        self.__current_position = pg.position()
+        time.sleep(movement_time)
+        pg.press('d')
+        time.sleep(DELAY_MOVEMENT)
 
     def __move_click(self, current):
         '''Moves cursor to coordinates and then clicks. Set on a delay to maximize profits from mining.'''
@@ -95,16 +99,12 @@ class AutoClicker():
                 if pg.pixelMatchesColor(new_position[0], new_position[1], (ground_color[0], ground_color[1], ground_color[2])):
                     found = True
                 if found == True:
-                    current_position = pg.position()
-                    movement_time = self.__calc_distance(current_position, new_position)
+                    movement_time = self.__calc_distance(new_position)
                     break
             if found == True:
                 break
             
-        pg.click(x, y)
-        time.sleep(movement_time)
-        self.__click_mine()
-        time.sleep(DELAY_MOVEMENT)
+        self.__mine(x, y, movement_time)
 
     def __run_puf(self):
         '''Clicks Puffle icon, then money bag.'''
@@ -159,12 +159,12 @@ class AutoClicker():
             self.__move_click(current)
             self.auto_click(current+1)
 
-    def __calc_distance(self, current_position, new_position):
+    def __calc_distance(self, new_position):
         '''Calculates pixels traveled.'''
-        movement_time = math.hypot(abs(current_position[1] - new_position[1]), abs(current_position[0] - new_position[0]))
+        movement_time = math.hypot(self.__current_position[1] - new_position[1], self.__current_position[0] - new_position[0])
         if self.__debug == True:
             print("Speed=" + str(self.__speed))
-            print("x1=" + str(current_position[1]) + " x2=" + str(new_position[1]) + " y1=" + str(current_position[0]) + " y2=" + str(new_position[0]))
+            print("x1=" + str(self.__current_position[1]) + " x2=" + str(new_position[1]) + " y1=" + str(self.__current_position[0]) + " y2=" + str(new_position[0]))
             print("Pixels to travel=" + str(movement_time))
             print("Movement time=" + str(movement_time / self.__speed))
         return (movement_time  / self.__speed)
