@@ -101,7 +101,8 @@ class AutoClicker():
                 if found == True:
                     movement_time = self.__calc_distance(new_position)
                     break
-            if found == True:
+            # Can change movement time to be whatever you want.
+            if found == True and movement_time <= 2.5:
                 break
             
         self.__mine(x, y, movement_time)
@@ -111,22 +112,25 @@ class AutoClicker():
         # Figures out which Puffle you have and sets that as the default for as long as the program runs.
         if self.__puffle == None:
             for image in os.listdir(FOLDER_PATH + "puffles/"):
-                if pg.locateOnScreen(FOLDER_PATH + "puffles/" + image, grayscale=self.__debug, confidence=CONFIDENCE):
-                    self.__puffle = FOLDER_PATH + "puffles/" + image
-                    if self.__debug == True:
-                        print("Puffle found: " + image)
-                    break
+                try:
+                    if pg.locateOnScreen(FOLDER_PATH + "puffles/" + image, grayscale=self.__debug):
+                        self.__puffle = FOLDER_PATH + "puffles/" + image
+                        if self.__debug == True:
+                            print("Puffle found: " + image)
+                        break
+                except:
+                    continue
             if self.__puffle == None:
                 self.__puffle = False
                 if self.__debug == True:
                     print("No Puffle found.")
         # Finds Puffle on the screen and then clicks it.
         try:
-            puffle_icon_location = pg.locateCenterOnScreen(self.__puffle, grayscale=GRAYSCALE, confidence=CONFIDENCE)
+            puffle_icon_location = pg.locateCenterOnScreen(self.__puffle, grayscale=GRAYSCALE)
             pg.click(puffle_icon_location)
             time.sleep(DELAY_TIME)
             # Finds money bag on the screen and clicks it, if it is ready.
-            money_icon_location = pg.locateCenterOnScreen(FOLDER_PATH + "money_icon.png", grayscale=GRAYSCALE, confidence=CONFIDENCE)
+            money_icon_location = pg.locateCenterOnScreen(FOLDER_PATH + "money_icon.png", grayscale=GRAYSCALE)
             if self.__debug == True:
                 if money_icon_location == None:
                     print("Puffle money icon either not found or not yet ready to be collected.")
