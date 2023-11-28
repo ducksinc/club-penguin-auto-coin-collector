@@ -3,7 +3,7 @@ Auto clicker for the mining room in Club Penguin.
 Made for 2560x1440 monitors; specifically, made for the NewCP client while scrolled all the way down.
 Make sure the monitor running Club Penguin is set as your primary monitor.
 Authors:
-@ChrisDaDerp
+@ducksinc
 @ZoomKahow
 '''
  
