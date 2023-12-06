@@ -49,11 +49,13 @@ class AutoClicker():
     __height_range = 0
 
     def __init__(self):
+        self.__before_first_click = False
         self.__size = SIZE
         self.__current = 0
         self.__debug = False
         self.__screen_size = pg.size()
         self.__puffle = None
+        self.__money_icon = None
         # 0 is for width and 1 is for height.
         self.__width = self.__screen_size[0]
         self.__height = self.__screen_size[1]
@@ -86,7 +88,6 @@ class AutoClicker():
         self.__current_position = pg.position()
         time.sleep(movement_time)
         pg.press('d')
-        time.sleep(DELAY_MOVEMENT)
 
     def __move_click(self, current):
         '''Moves cursor to coordinates and then clicks. Set on a delay to maximize profits from mining.'''
@@ -104,7 +105,11 @@ class AutoClicker():
             # Can change movement time to be whatever you want.
             if found == True and movement_time <= 2.5:
                 break
-            
+
+        # Next position to mine is queued to maximize efficiency.
+        if self.__before_first_click != False:
+            time.sleep(DELAY_MOVEMENT)
+            self.__before_first_click = True
         self.__mine(x, y, movement_time)
 
     def __run_puf(self):
@@ -128,9 +133,18 @@ class AutoClicker():
         try:
             puffle_icon_location = pg.locateCenterOnScreen(self.__puffle, grayscale=GRAYSCALE)
             pg.click(puffle_icon_location)
-            time.sleep(DELAY_TIME)
+            # Sets correct money bag icon.
+            for image in os.listdir(FOLDER_PATH + "money_icons/"):
+                try:
+                    if pg.locateOnScreen(FOLDER_PATH + "money_icons/" + image, grayscale=self.__debug):
+                        self.__money_icon = FOLDER_PATH + "money_icons/" + image
+                        if self.__debug == True:
+                            print("Money bag icon found: " + image)
+                        break
+                except:
+                    continue
             # Finds money bag on the screen and clicks it, if it is ready.
-            money_icon_location = pg.locateCenterOnScreen(FOLDER_PATH + "money_icon.png", grayscale=GRAYSCALE)
+            money_icon_location = pg.locateCenterOnScreen(self.__money_icon, grayscale=GRAYSCALE)
             if self.__debug == True:
                 if money_icon_location == None:
                     print("Puffle money icon either not found or not yet ready to be collected.")
